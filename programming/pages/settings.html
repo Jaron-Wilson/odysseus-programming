@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Programming settings</title>
+<link rel="stylesheet" href="static/common.css">
+<style>
+  main { max-width: 620px; margin: 0 auto; padding: 18px 16px 40px; display: flex; flex-direction: column; gap: 14px; }
+  h2 { font-size: 16px; margin: 6px 0 0; }
+  .card { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+  .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .row label { flex: 1; min-width: 220px; }
+  .sub { font-size: 12.5px; opacity: .65; }
+  input[type=number] { width: 110px; font: inherit; padding: 5px 8px; border-radius: 7px; color: inherit;
+    background: none; border: 1px solid var(--border); }
+  #saved { font-size: 12.5px; opacity: .7; }
+</style>
+</head>
+<body>
+<main>
+  <h2>Terminal</h2>
+  <div class="card">
+    <div class="sub" id="info">Loading…</div>
+    <div class="row"><label for="max_sessions">Terminals open at once, per person</label>
+      <input type="number" id="max_sessions" min="1" max="32"></div>
+    <div class="row"><label for="grace_minutes">End a terminal nobody is attached to after (minutes)
+      <div class="sub">The page closed or the connection was lost.</div></label>
+      <input type="number" id="grace_minutes" min="1" max="1440"></div>
+    <div class="row"><label for="scrollback_kb">Output replayed when you come back (KB)</label>
+      <input type="number" id="scrollback_kb" min="16" max="4096"></div>
+    <div class="row"><button class="btn" id="save" type="button">Save</button><span id="saved" aria-live="polite"></span></div>
+  </div>
+  <h2>Just for you</h2>
+  <div class="card">
+    <label class="row"><input type="checkbox" id="copyOnSelect"> Copy on select
+      <span class="sub">Selecting text in the Terminal copies it, like many terminals do.</span></label>
+  </div>
+</main>
+<script type="module">
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const KEYS = ['max_sessions', 'grace_minutes', 'scrollback_kb'];
+function show(d) {
+  for (const k of KEYS) $(k).value = d.settings[k];
+  $('info').innerHTML = `Shell <code>${esc(d.shell)}</code>, started in <code>${esc(d.home)}</code>, as the user
+    Odysseus runs as. ${d.open_terminals} terminal${d.open_terminals === 1 ? '' : 's'} open now.`;
+}
+async function load() {
+  const r = await fetch('api/settings');
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) { $('info').textContent = d.detail || `Could not load the settings (${r.status}).`; return; }
+  show(d);
+  const p = await (await fetch('api/prefs')).json().catch(() => ({}));
+  $('copyOnSelect').checked = !!(p.prefs || {}).copyOnSelect;
+}
+$('save').addEventListener('click', async () => {
+  const body = Object.fromEntries(KEYS.map((k) => [k, Number($(k).value)]));
+  const r = await fetch('api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const d = await r.json().catch(() => ({}));
+  if (r.ok) { show(d); $('saved').textContent = 'Saved. New limits apply to terminals from now on.'; }
+  else $('saved').textContent = d.detail || `Could not save (${r.status}).`;
+});
+$('copyOnSelect').addEventListener('change', (e) => {
+  fetch('api/prefs', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ copyOnSelect: e.target.checked }) });
+});
+load();
+</script>
+</body>
+</html>
