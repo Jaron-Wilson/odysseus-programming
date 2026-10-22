@@ -1,0 +1,30 @@
+/* Shared by the Programming mod's pages. Mod pages run in a sandboxed frame
+   and can't read Odysseus's theme, so they carry Odysseus's default colors
+   (dark, and light when the system asks for it). */
+:root {
+  --bg: #17150f; --fg: #ede9e0; --red: #e06c75; --accent: #d97a4a;
+  --border: rgba(237, 233, 224, .16);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root { --bg: #faf8f3; --fg: #1a1a17; --red: #c0524a; --accent: #c0652f; --border: rgba(26, 26, 23, .16); color-scheme: light; }
+}
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg);
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+* { box-sizing: border-box; }
+code, pre, kbd { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+.page { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden; }
+.page-head { display: flex; align-items: center; gap: 8px; flex: none; min-height: 42px; padding: 6px 12px;
+  font-weight: 600; border-bottom: 1px solid color-mix(in srgb, var(--fg) 10%, transparent); }
+.page-head > .grow { flex: 1; min-width: 0; }
+.empty { padding: 16px; font-size: 13px; opacity: .65; }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex: 0 0 8px; background: #888; }
+.dot.running { background: #5fb36b; box-shadow: 0 0 0 3px color-mix(in srgb, #5fb36b 25%, transparent); }
+.btn { font: inherit; font-size: 12.5px; padding: 4px 12px; border-radius: 7px; cursor: pointer; color: inherit;
+  background: none; border: 1px solid color-mix(in srgb, var(--fg) 16%, transparent); }
+.btn:hover { background: color-mix(in srgb, var(--fg) 8%, transparent); }
+.toast { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 2000; max-width: 90vw;
+  padding: 8px 14px; border-radius: 9px; font-size: 13px; background: var(--fg); color: var(--bg);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .3); }
+.notice { margin: 16px; padding: 12px 14px; border-radius: 9px; font-size: 13.5px;
+  border-left: 3px solid var(--red); background: color-mix(in srgb, var(--red) 8%, transparent); }

@@ -1,0 +1,48 @@
+{
+  "manifest_version": 1,
+  "id": "programming",
+  "name": "Programming",
+  "version": "0.1.0",
+  "description": "Odysseus's coding tools: a live Terminal on the server and the Claude Code sessions on this host, read like chats.",
+  "author": "Jaron Wilson",
+  "license": "AGPL-3.0",
+  "homepage": "https://github.com/Jaron-Wilson/odysseus-programming",
+  "min_core": "0.1",
+  "tags": ["dev-tools", "ai"],
+  "admin_only": true,
+  "runtime": {
+    "type": "process",
+    "command": ["python", "-m", "programming"],
+    "setup": [["python3", "-m", "venv", ".venv"], [".venv/bin/pip", "install", "--quiet", "-r", "requirements.txt"]],
+    "health": "/health",
+    "start": "lazy",
+    "idle_stop_minutes": 0
+  },
+  "permissions": [],
+  "ui": {
+    "tabs": [
+      { "id": "terminal", "title": "Terminal", "icon": "terminal", "path": "/terminal",
+        "section": "build", "after": "code", "replaces": "terminal" },
+      { "id": "sessions", "title": "Claude sessions", "icon": "sessions", "path": "/sessions",
+        "section": "build", "after": "background", "replaces": "claude-sessions" }
+    ],
+    "home_cards": [{ "id": "live", "title": "Live Claude sessions", "path": "/cards/live", "height": 150 }],
+    "settings_path": "/settings"
+  },
+  "tutorial": {
+    "version": 1,
+    "steps": [
+      { "title": "A shell on this server",
+        "body": "The **Terminal** tab is a live command line on this server, as the user Odysseus runs as. Use it to run commands, `ssh` to other machines or start `claude`.\n\nEach shell is a tab inside it (**+** opens another). A shell keeps running when you reload or lose the connection, and comes back with its recent output; closing its tab ends it.",
+        "action": { "label": "Open the Terminal", "path": "/terminal" } },
+      { "title": "Copy, paste and phones",
+        "body": "Select text and press **Ctrl+C** (or **Ctrl+Shift+C**) to copy it; **Ctrl+V** pastes. Right-click for Copy, Paste and Select all.\n\nOn a phone, the **Keys** row gives you Esc, Tab, Ctrl, Alt and the arrows." },
+      { "title": "Read your Claude Code sessions",
+        "body": "The **Claude sessions** tab lists every Claude Code session on this host, live ones first, and shows one like a chat: your prompts, Claude's replies and each tool call. Live sessions update by themselves.\n\n**Copy /claude attach** copies the command that hands a session to a chat's coding agent.",
+        "action": { "label": "Open Claude sessions", "path": "/sessions" } },
+      { "title": "Limits and copy on select",
+        "body": "In settings, choose how many terminals can be open at once, how long one nobody is attached to keeps running, and whether selecting text copies it.",
+        "action": { "label": "Open settings", "settings": true } }
+    ]
+  }
+}
