@@ -43,16 +43,37 @@ Antigravity, its approvals, the Background page, `/claude attach` and Claude dir
 live in the core, with their files in the data dir (`claude_code_*`). See
 [What is next](#what-is-next).
 
-## Standalone
+## Run without Odysseus
+
+The Terminal and the Claude Code sessions pages work on their own. With no `ODYSSEUS_URL` in its environment the mod runs standalone: it asks for a password
+instead of trusting Odysseus's signed headers, keeps its settings and data in files under `MOD_DATA_DIR`,
+and writes notifications to its log.
 
 ```bash
+git clone https://github.com/Jaron-Wilson/odysseus-programming.git && cd odysseus-programming
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
-MOD_PASSWORD=pick-one MOD_DATA_DIR=./data .venv/bin/python -m programming    # http://127.0.0.1:8770
+MOD_PASSWORD=pick-one .venv/bin/python -m programming      # then open http://127.0.0.1:8770/
 ```
 
-Without `ODYSSEUS_URL` it has its own login (`MOD_PASSWORD`, or one printed at start), and
-its sockets only accept its own page's origin. `MOD_HOST` and `MOD_PORT` change where it
-listens.
+| Variable | Default | Meaning |
+|---|---|---|
+| `MOD_PASSWORD` | made up and printed at start | The sign-in password (one local user) |
+| `MOD_PORT` | `8770` | The port it listens on |
+| `MOD_HOST` | `127.0.0.1` | The address it listens on. It speaks plain HTTP: to reach it from another machine, put HTTPS in front (for example `tailscale serve`) rather than listening on `0.0.0.0` |
+| `MOD_DATA_DIR` | `./data` | Where its settings and data are kept |
+| `PROGRAMMING_TERMINAL_*` | the mod's settings | The Terminal's limits (see above) |
+
+What works standalone:
+
+- The Terminal (shells on a PTY; its sockets only accept its own page's origin) and the Claude Code sessions pages, settings and preferences
+
+What needs Odysseus:
+
+- The admin-only check against Odysseus's users: standalone the one password is the admin
+- The coding agents themselves (`claude_code`, approvals, the Background page), which live in Odysseus
+
+`tests/test_standalone.py` starts it this way, as its own process, and checks the sign-in, that
+forged Odysseus headers are ignored, and the pages.
 
 ## Development
 
